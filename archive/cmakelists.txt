@@ -1,0 +1,19 @@
+cmake_minimum_required(VERSION 3.29)
+project(archive)
+
+# config c++ compiler
+set(CMAKE_CXX_STANDARD          20)
+set(CMAKE_CXX_EXTENSIONS        OFF)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# config location for artifacts
+set(CMAKE_BINARY_DIR        ${CMAKE_SOURCE_DIR}/build)
+set(EXECUTABLE_OUTPUT_PATH  ${CMAKE_SOURCE_DIR}/bin)
+
+# select project files
+file(GLOB_RECURSE archive_inc_files include/archive/ *.hpp)
+file(GLOB_RECURSE archive_src_files source/archive/  *.cpp)
+
+# create executable and set include directories
+add_executable            (archive ${archive_src_files} ${archive_inc_files})
+target_include_directories(archive PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
