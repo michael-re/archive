@@ -1,6 +1,14 @@
 cmake_minimum_required(VERSION 3.29)
 project(archive)
 
+# ensure CMAKE_BUILD_TYPE is explicitly set to Release or Debug
+if (NOT CMAKE_BUILD_TYPE MATCHES "^(Release|Debug)$")
+        set(fatal_error_message "\nCMAKE_BUILD_TYPE must be set to 'Release' or 'Debug'.\n"
+                                " - Example: cmake [...] -DCMAKE_BUILD_TYPE=Release [...]\n"
+                                " - Example: cmake [...] -DCMAKE_BUILD_TYPE=Debug [...]\n")
+        message(FATAL_ERROR  ${fatal_error_message})
+endif()
+
 # config c++ compiler
 set(CMAKE_CXX_STANDARD             20)
 set(CMAKE_CXX_EXTENSIONS           OFF)
