@@ -1,2 +1,3 @@
 # auto detect text files and perform lf normalization
 * text=auto eol=lf
+* cmakelists.txt linguist-language=CMake
