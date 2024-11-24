@@ -35,3 +35,9 @@
 .vscode/
 .idea/
 .vs/
+
+# build stuff
+cmake-build-debug/
+build/
+out/
+bin/
