@@ -16,6 +16,8 @@ namespace archive
         explicit Fatal(const std::string_view     message  = "",
                        const std::source_location location =
                              std::source_location::current()) noexcept;
+
+        [[noreturn]] auto terminate() const -> void;
     };
 } // namespace archive
 

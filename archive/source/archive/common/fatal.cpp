@@ -1,6 +1,8 @@
 #include <format>
+#include <iostream>
 
 #include "archive/common/fatal.hpp"
+#include "archive/common/excode.hpp"
 
 using namespace archive;
 
@@ -38,4 +40,12 @@ Fatal::Fatal(const std::string_view     message,
         // something went wrong!!!
         this->m_message.clear();
     }
+}
+
+auto Fatal::terminate() const -> void
+{
+    std::cerr << "\n==== archive fatal termination ====\n"
+                << message()
+                << "\n==== archive fatal termination ====\n\n";
+    std::exit(archive::exit_code::failure);
 }
