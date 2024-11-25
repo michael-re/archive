@@ -1,8 +1,10 @@
 #include <format>
 #include <iostream>
 
+#include "archive/archive.hpp"
+
 auto main() -> int
 {
     std::cout << std::format("hello archive!!!!") << std::endl;
-    return EXIT_SUCCESS;
+    return archive::exit_code::success;
 }

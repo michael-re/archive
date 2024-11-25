@@ -3,5 +3,7 @@
 #ifndef ARCHIVE_ARCHIVE_HPP
 #define ARCHIVE_ARCHIVE_HPP
 
+// common
+#include "archive/common/excode.hpp"
 
 #endif // ARCHIVE_ARCHIVE_HPP
