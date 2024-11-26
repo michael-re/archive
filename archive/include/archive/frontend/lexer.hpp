@@ -17,6 +17,8 @@ namespace archive::frontend
         [[nodiscard]] auto lex() -> Token;
 
     private:
+        [[nodiscard]] auto lex_character() -> Token;
+
         [[nodiscard]] auto lex_whitespace()   -> std::optional<char>;
         [[nodiscard]] auto lex_nonprintable() -> bool;
         [[nodiscard]] auto lex_comments()     -> bool;

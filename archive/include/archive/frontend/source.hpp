@@ -31,6 +31,8 @@ namespace archive::frontend
         [[nodiscard]] auto consume(const char             chr) -> std::optional<char>;
         [[nodiscard]] auto consume(const std::string_view str) -> std::optional<std::string_view>;
 
+        [[nodiscard]] auto consume_escape_char() -> char;
+
     private:
         Location    m_location;
         std::size_t m_cursor;

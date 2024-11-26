@@ -1,5 +1,6 @@
 #include "archive/frontend/lexer.hpp"
 #include "archive/common/utility.hpp"
+#include "archive/common/assert.hpp"
 
 using namespace archive;
 using namespace archive::frontend;
@@ -13,11 +14,26 @@ auto Lexer::lex() -> Token
 {
     const auto current  = lex_whitespace();
     const auto location = m_source.location();
+    if (!current)
+        return { Token::Type::EndOfFile, location };
+
+    const auto character = *current;
+    if (character == '\'') return lex_character();
 
     utility::ignore(m_source++);
-    return (!current)
-         ? Token(Token::Type::EndOfFile, location)
-         : Token(Token::Type::Unknown,   location, { *current, '\0' });
+    return { Token::Type::Error, location, "unexpected character" };
+}
+
+auto Lexer::lex_character() -> Token
+{
+    ASSERT(m_source.consume("'"), "character literal must begin with '");
+
+    const auto location  = m_source.location();
+    const auto character = m_source.consume_escape_char();
+
+    return m_source.consume("'")
+         ? Token(Token::Type::Character, location, { character, 0x00 })
+         : Token(Token::Type::Error,     location, "unterminated character literal");
 }
 
 auto Lexer::lex_whitespace() -> std::optional<char>

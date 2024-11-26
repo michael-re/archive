@@ -93,3 +93,29 @@ auto Source::consume(const std::string_view str) -> std::optional<std::string_vi
 
     return current;
 }
+
+auto Source::consume_escape_char() -> char
+{
+    const auto current = consume();
+    if (current == '\\' && peek())
+    {
+        const auto next = consume();
+        switch (*next)
+        {
+            case '0':  return '\0';
+            case 'a':  return '\a';
+            case 'b':  return '\b';
+            case 'f':  return '\f';
+            case 'n':  return '\n';
+            case 'r':  return '\r';
+            case 't':  return '\t';
+            case 'v':  return '\v';
+            case '\\': return '\\';
+            case '\'': return '\'';
+            case '"':  return '"';
+            default:   return *next;
+        }
+    }
+
+    return current ? *current : 0x0;
+}
