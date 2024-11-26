@@ -8,7 +8,7 @@
 
 namespace archive::frontend
 {
-    struct Location
+    struct Location final
     {
         std::uint64_t line;
         std::uint64_t column;

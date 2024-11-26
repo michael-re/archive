@@ -12,7 +12,7 @@
 
 namespace archive::frontend
 {
-    class Source
+    class Source final
     {
     public:
         explicit Source(std::string text = "");
