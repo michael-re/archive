@@ -86,17 +86,17 @@ namespace archive::frontend
         // identifiers/literals/values
         Character,
         False,
+        Float,
         Identifier,
+        Integer,
         Nil,
         String,
         True,
 
         // basic data types
         Bool,
+        Byte,
         Char,
-        Float,
-        Int,
-        UInt,
         Void,
 
         // signed integer types
