@@ -1,4 +1,5 @@
 #include "archive/frontend/source.hpp"
+#include "archive/common/utility.hpp"
 
 using namespace archive;
 using namespace archive::frontend;
@@ -41,7 +42,7 @@ auto Source::operator[](const std::string_view str) const -> std::optional<std::
 
 auto Source::operator++() -> std::optional<char>
 {
-    static_cast<void>(consume());
+    utility::ignore(consume());
     return (*this)[0];
 }
 
@@ -81,7 +82,7 @@ auto Source::consume(const std::string_view str) -> std::optional<std::string_vi
     const auto chars   = (current) ? *current : std::string_view("");
 
     for (const auto& _ [[maybe_unused]]: chars)
-        static_cast<void>(consume());
+        utility::ignore(consume());
 
     return current;
 }
