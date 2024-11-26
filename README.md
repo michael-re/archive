@@ -13,13 +13,6 @@ Before you begin, ensure you have the following tools installed on your system:
                         **[`Clang`](https://releases.llvm.org/download.html)**,
                         or **[`GCC`](https://gcc.gnu.org/))**
 
->
-> **Windows Users:**  This project can be compiled using
-> **[`Visual Studio 2022`](https://visualstudio.microsoft.com/downloads/)**.
-> Alternatively, if you prefer to use the provided **[`makefile`](makefile)**,
-> install **`Make`** and **`CMake`** via **[`Scoop`](https://scoop.sh/)**.
->
-
 ### Building
 
 Once you've got your build environment configured, use following steps to
@@ -49,8 +42,3 @@ compile the program:
     # Clean up compiled binaries and build artifacts
     make clean
     ```
-
->
-> [!NOTE]
-> The compiled binary is placed in the **`bin/`** directory of the project root.
->
