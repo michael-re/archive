@@ -25,8 +25,8 @@ auto Lexer::lex() -> Token
 
 auto Lexer::lex_punctuation() -> Token
 {
-    const auto location   = m_source.location();
-    const auto not_at_end = !m_source.is_at_end();
+    const auto& location   = m_source.location();
+    const auto  not_at_end = !m_source.is_at_end();
 
     ASSERT(not_at_end, "can't lex punctuation after reaching end of file");
     switch (const auto c = *(m_source++))
@@ -133,8 +133,8 @@ auto Lexer::lex_identifier() -> Token
         { "f128",   Token::Type::F128   },
     };
 
-    const auto location = m_source.location();
-    const auto is_alpha = !m_source.is_at_end() && utility::is_alpha(*m_source.peek());
+    const auto& location = m_source.location();
+    const auto  is_alpha = !m_source.is_at_end() && utility::is_alpha(*m_source.peek());
     ASSERT(is_alpha, "identifier must begin with an alpha character");
 
     auto lexeme = std::string();
@@ -161,11 +161,10 @@ auto Lexer::lex_character() -> Token
 
 auto Lexer::lex_string() -> Token
 {
+    const auto& location = m_source.location();
     ASSERT(m_source.consume('"'), "string literal must begin with `\"`");
 
-    auto location = m_source.location();
     auto lexeme   = std::string();
-
     while (!m_source.is_at_end() && !m_source.peek('"'))
         lexeme += m_source.consume_escape_char();
 
@@ -183,8 +182,8 @@ auto Lexer::lex_number() -> Token
 
 auto Lexer::lex_binnum() -> Token
 {
-    const auto location  = m_source.location();
-    const auto is_binary = m_source.consume("0b") || m_source.consume("0B");
+    const auto& location  = m_source.location();
+    const auto  is_binary = m_source.consume("0b") || m_source.consume("0B");
     ASSERT(is_binary, "binary literal must begin with `0b` or `0B`");
 
     auto lexeme = std::string();
@@ -199,8 +198,8 @@ auto Lexer::lex_binnum() -> Token
 
 auto Lexer::lex_decnum() -> Token
 {
-    const auto location   = m_source.location();
-    const auto is_decimal = !m_source.is_at_end() && utility::is_digit(*m_source.peek());
+    const auto& location   = m_source.location();
+    const auto  is_decimal = !m_source.is_at_end() && utility::is_digit(*m_source.peek());
     ASSERT(is_decimal, "decimal literal must begin with with `0` - `9`");
 
     // extract digits from source - returns the number of valid digits read
@@ -251,8 +250,8 @@ auto Lexer::lex_decnum() -> Token
 
 auto Lexer::lex_hexnum() -> Token
 {
-    const auto location  = m_source.location();
-    const auto is_binary = m_source.consume("0x") || m_source.consume("0X");
+    const auto& location  = m_source.location();
+    const auto  is_binary = m_source.consume("0x") || m_source.consume("0X");
     ASSERT(is_binary, "hex literal must begin with `0x` or `0X`");
 
     auto lexeme = std::string();
