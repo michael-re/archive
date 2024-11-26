@@ -17,13 +17,14 @@ namespace archive::frontend
         [[nodiscard]] auto lex() -> Token;
 
     private:
-        [[nodiscard]] auto lex_identifier() -> Token;
-        [[nodiscard]] auto lex_character()  -> Token;
-        [[nodiscard]] auto lex_string()     -> Token;
-        [[nodiscard]] auto lex_number()     -> Token;
-        [[nodiscard]] auto lex_binnum()     -> Token;
-        [[nodiscard]] auto lex_decnum()     -> Token;
-        [[nodiscard]] auto lex_hexnum()     -> Token;
+        [[nodiscard]] auto lex_punctuation() -> Token;
+        [[nodiscard]] auto lex_identifier()  -> Token;
+        [[nodiscard]] auto lex_character()   -> Token;
+        [[nodiscard]] auto lex_string()      -> Token;
+        [[nodiscard]] auto lex_number()      -> Token;
+        [[nodiscard]] auto lex_binnum()      -> Token;
+        [[nodiscard]] auto lex_decnum()      -> Token;
+        [[nodiscard]] auto lex_hexnum()      -> Token;
 
         [[nodiscard]] auto lex_whitespace()   -> std::optional<char>;
         [[nodiscard]] auto lex_nonprintable() -> bool;

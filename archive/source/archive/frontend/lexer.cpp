@@ -1,3 +1,4 @@
+#include <format>
 #include <unordered_map>
 
 #include "archive/frontend/lexer.hpp"
@@ -14,19 +15,77 @@ Lexer::Lexer(std::string source)
 
 auto Lexer::lex() -> Token
 {
-    const auto current   = lex_whitespace();
-    const auto location  = m_source.location();
-    if (!current)
-        return { Token::Type::EndOfFile, location };
+    if      (const auto c = lex_whitespace(); !c) return { Token::Type::EndOfFile, m_source.location() };
+    else if (utility::is_squote(*c))              return lex_character();
+    else if (utility::is_dquote(*c))              return lex_string();
+    else if (utility::is_digit (*c))              return lex_number();
+    else if (utility::is_alpha (*c))              return lex_identifier();
+    else                                          return lex_punctuation();
+}
 
-    const auto character = *current;
-    if (utility::is_squote(character)) return lex_character();
-    if (utility::is_dquote(character)) return lex_string();
-    if (utility::is_digit (character)) return lex_number();
-    if (utility::is_alpha (character)) return lex_identifier();
+auto Lexer::lex_punctuation() -> Token
+{
+    const auto location   = m_source.location();
+    const auto not_at_end = !m_source.is_at_end();
 
-    utility::ignore(m_source++);
-    return { Token::Type::Error, location, "unexpected character" };
+    ASSERT(not_at_end, "can't lex punctuation after reaching end of file");
+    switch (const auto c = *(m_source++))
+    {
+        // single character punctuation
+        case ',': return { Token::Type::Comma,        location, { c } };
+        case ';': return { Token::Type::Semicolon,    location, { c } };
+        case '?': return { Token::Type::Question,     location, { c } };
+        case '.': return { Token::Type::Dot,          location, { c } };
+        case '(': return { Token::Type::ParenLeft,    location, { c } };
+        case ')': return { Token::Type::ParenRight,   location, { c } };
+        case '[': return { Token::Type::BracketLeft,  location, { c } };
+        case ']': return { Token::Type::BracketRight, location, { c } };
+        case '{': return { Token::Type::BraceLeft,    location, { c } };
+        case '}': return { Token::Type::BraceRight,   location, { c } };
+        case '*': return { Token::Type::Star,         location, { c } };
+        case '/': return { Token::Type::Slash,        location, { c } };
+        case '%': return { Token::Type::Percent,      location, { c } };
+        case '+': return { Token::Type::Plus,         location, { c } };
+
+        // double/single character punctuation
+        case '-':
+            return m_source.consume('>')
+                 ? Token(Token::Type::Arrow,        location, "->")
+                 : Token(Token::Type::Minus,        location, "-");
+        case ':':
+            return m_source.consume(':')
+                 ? Token(Token::Type::Colon2,       location, "::")
+                 : Token(Token::Type::Class,        location, ":");
+        case '!':
+            return m_source.consume('=')
+                 ? Token(Token::Type::BangEqual,    location, "!=")
+                 : Token(Token::Type::Bang,         location, "!");
+        case '&':
+            return m_source.consume('&')
+                 ? Token(Token::Type::Ampersand2,   location, "&&")
+                 : Token(Token::Type::Ampersand,    location, "&");
+        case '<':
+            return m_source.consume('=')
+                 ? Token(Token::Type::LessEqual,    location, "<=")
+                 : Token(Token::Type::Less,         location, "<");
+        case '=':
+            return m_source.consume('=')
+                 ? Token(Token::Type::Equal2,       location, "==")
+                 : Token(Token::Type::Equal,        location, "=");
+        case '>':
+            return m_source.consume('=')
+                 ? Token(Token::Type::GreaterEqual, location, ">=")
+                 : Token(Token::Type::Greater,      location, ">");
+        case '|':
+            return m_source.consume('|')
+                 ? Token(Token::Type::VerticalBar2, location, "||")
+                 : Token(Token::Type::VerticalBar,  location,  "|");
+
+        // error
+        default:
+            auto error = std::format("unexpected character `{}` (0x{:x})", c, c);
+            return { Token::Type::Error, location, std::move(error) };
+    }
 }
 
 auto Lexer::lex_identifier() -> Token
