@@ -1,3 +1,5 @@
+#include <unordered_map>
+
 #include "archive/frontend/lexer.hpp"
 #include "archive/common/utility.hpp"
 #include "archive/common/assert.hpp"
@@ -12,8 +14,8 @@ Lexer::Lexer(std::string source)
 
 auto Lexer::lex() -> Token
 {
-    const auto current  = lex_whitespace();
-    const auto location = m_source.location();
+    const auto current   = lex_whitespace();
+    const auto location  = m_source.location();
     if (!current)
         return { Token::Type::EndOfFile, location };
 
@@ -21,9 +23,69 @@ auto Lexer::lex() -> Token
     if (utility::is_squote(character)) return lex_character();
     if (utility::is_dquote(character)) return lex_string();
     if (utility::is_digit (character)) return lex_number();
+    if (utility::is_alpha (character)) return lex_identifier();
 
     utility::ignore(m_source++);
     return { Token::Type::Error, location, "unexpected character" };
+}
+
+auto Lexer::lex_identifier() -> Token
+{
+    static const auto keywords_types = std::unordered_map<std::string_view, Token::Type>
+    {
+        { "class",  Token::Type::Class  },
+        { "else",   Token::Type::Else   },
+        { "for",    Token::Type::For    },
+        { "fun",    Token::Type::Fun    },
+        { "if ",    Token::Type::If     },
+        { "import", Token::Type::Import },
+        { "lambda", Token::Type::Lambda },
+        { "let",    Token::Type::Let    },
+        { "module", Token::Type::Module },
+        { "nil",    Token::Type::Nil    },
+        { "return", Token::Type::Return },
+        { "true",   Token::Type::True   },
+        { "var",    Token::Type::Var    },
+        { "while",  Token::Type::While  },
+
+        { "bool",   Token::Type::Bool   },
+        { "byte",   Token::Type::Byte   },
+        { "char",   Token::Type::Char   },
+        { "void",   Token::Type::Void   },
+
+        { "i8 ",    Token::Type::I8     },
+        { "i16",    Token::Type::I16    },
+        { "i32",    Token::Type::I32    },
+        { "i64",    Token::Type::I64    },
+        { "i128",   Token::Type::I128   },
+        { "isize",  Token::Type::Isize  },
+
+        { "u8 ",    Token::Type::U8     },
+        { "u16",    Token::Type::U16    },
+        { "u32",    Token::Type::U32    },
+        { "u64",    Token::Type::U64    },
+        { "u128",   Token::Type::U128   },
+        { "usize",  Token::Type::Usize  },
+
+        { "f16",    Token::Type::F16    },
+        { "f32",    Token::Type::F32    },
+        { "f64",    Token::Type::F64    },
+        { "f80",    Token::Type::F80    },
+        { "f128",   Token::Type::F128   },
+    };
+
+    const auto location = m_source.location();
+    const auto is_alpha = !m_source.is_at_end() && utility::is_alpha(*m_source.peek());
+    ASSERT(is_alpha, "identifier must begin with an alpha character");
+
+    auto lexeme = std::string();
+    while (!m_source.is_at_end() && utility::is_alpha(*m_source.peek()))
+        lexeme += *(m_source++);
+
+    const auto type = keywords_types.contains(lexeme)
+                        ? keywords_types.at(lexeme)
+                        : Token::Type::Identifier;
+    return { type, location, std::move(lexeme) };
 }
 
 auto Lexer::lex_character() -> Token
@@ -34,8 +96,8 @@ auto Lexer::lex_character() -> Token
     const auto character = m_source.consume_escape_char();
 
     return m_source.consume("'")
-         ? Token(Token::Type::Character, location, { character, 0x00 })
-         : Token(Token::Type::Error,     location, "unterminated character literal");
+         ? Token(Token::Type::CharacterLiteral, location, { character, 0x00 })
+         : Token(Token::Type::Error,            location, "unterminated character literal");
 }
 
 auto Lexer::lex_string() -> Token
@@ -49,8 +111,8 @@ auto Lexer::lex_string() -> Token
         lexeme += m_source.consume_escape_char();
 
     return m_source.consume('"')
-         ? Token(Token::Type::String, location, std::move(lexeme))
-         : Token(Token::Type::Error,  location, "unterminated string literal");
+         ? Token(Token::Type::StringLiteral, location, std::move(lexeme))
+         : Token(Token::Type::Error,         location, "unterminated string literal");
 }
 
 auto Lexer::lex_number() -> Token
@@ -68,12 +130,12 @@ auto Lexer::lex_binnum() -> Token
 
     auto lexeme = std::string();
     while (m_source.peek('0') || m_source.peek('1') || m_source.peek('_'))
-        if (const auto c = m_source.consume(); c != '_') lexeme += *c;
+        if (const auto c = m_source.consume(); c != '_') lexeme += utility::to_lower<char>(*c);
 
     if (lexeme.empty())        return { Token::Type::Error, location, "binary literal must have at least one valid digit" };
     if (lexeme.length() > 128) return { Token::Type::Error, location, "binary literal too large" };
 
-    return { Token::Type::Integer, location, "0b" + lexeme };
+    return { Token::Type::IntegerLiteral, location, "0b" + lexeme };
 }
 
 auto Lexer::lex_decnum() -> Token
@@ -97,12 +159,12 @@ auto Lexer::lex_decnum() -> Token
     };
 
     auto lexeme = std::string();
-    auto type   = Token::Type::Integer;
+    auto type   = Token::Type::IntegerLiteral;
 
     // integer
     if (read_digits(lexeme) && m_source.consume('.'))
     {
-        type    = Token::Type::Float;
+        type    = Token::Type::FloatLiteral;
         lexeme += '.';
 
         // fraction
@@ -113,7 +175,7 @@ auto Lexer::lex_decnum() -> Token
     // scientific notation
     if (m_source.consume('e') || m_source.consume('E'))
     {
-        type = Token::Type::Float;
+        type = Token::Type::FloatLiteral;
         if      (m_source.consume('+')) lexeme += "e+";
         else if (m_source.consume('-')) lexeme += "e-";
         else                            lexeme += "e+";
@@ -148,7 +210,7 @@ auto Lexer::lex_hexnum() -> Token
     if (lexeme.empty())       return { Token::Type::Error, location, "hex literal must have at least one valid digit" };
     if (lexeme.length() > 32) return { Token::Type::Error, location, "hex literal too large" };
 
-    return { Token::Type::Integer, location, "0x" + lexeme };
+    return { Token::Type::IntegerLiteral, location, "0x" + lexeme };
 }
 
 auto Lexer::lex_whitespace() -> std::optional<char>

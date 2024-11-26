@@ -69,6 +69,13 @@ namespace archive::frontend
         VerticalBar,  // |
         VerticalBar2, // ||
 
+        // literals/identifier
+        Identifier,
+        CharacterLiteral,
+        FloatLiteral,
+        StringLiteral,
+        IntegerLiteral,
+
         // keywords
         Class,
         Else,
@@ -79,19 +86,11 @@ namespace archive::frontend
         Lambda,
         Let,
         Module,
+        Nil,
         Return,
+        True,
         Var,
         While,
-
-        // identifiers/literals/values
-        Character,
-        False,
-        Float,
-        Identifier,
-        Integer,
-        Nil,
-        String,
-        True,
 
         // basic data types
         Bool,
