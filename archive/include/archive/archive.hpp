@@ -8,4 +8,8 @@
 #include "archive/common/except.hpp"
 #include "archive/common/excode.hpp"
 
+// frontend
+#include "archive/frontend/location.hpp"
+#include "archive/frontend/token.hpp"
+
 #endif // ARCHIVE_ARCHIVE_HPP
