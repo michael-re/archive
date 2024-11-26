@@ -9,6 +9,7 @@
 #include "archive/common/excode.hpp"
 
 // frontend
+#include "archive/frontend/lexer.hpp"
 #include "archive/frontend/location.hpp"
 #include "archive/frontend/source.hpp"
 #include "archive/frontend/token.hpp"
