@@ -19,6 +19,7 @@ auto Lexer::lex() -> Token
 
     const auto character = *current;
     if (character == '\'') return lex_character();
+    if (character == '"')  return lex_string();
 
     utility::ignore(m_source++);
     return { Token::Type::Error, location, "unexpected character" };
@@ -34,6 +35,21 @@ auto Lexer::lex_character() -> Token
     return m_source.consume("'")
          ? Token(Token::Type::Character, location, { character, 0x00 })
          : Token(Token::Type::Error,     location, "unterminated character literal");
+}
+
+auto Lexer::lex_string() -> Token
+{
+    ASSERT(m_source.consume('"'), "string literal must begin with \"");
+
+    auto location = m_source.location();
+    auto lexeme   = std::string();
+
+    while (!m_source.is_at_end() && !m_source.peek('"'))
+        lexeme += m_source.consume_escape_char();
+
+    return m_source.consume('"')
+         ? Token(Token::Type::String, location, std::move(lexeme))
+         : Token(Token::Type::Error,  location, "unterminated string literal");
 }
 
 auto Lexer::lex_whitespace() -> std::optional<char>
