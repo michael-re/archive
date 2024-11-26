@@ -16,24 +16,31 @@ auto Source::location() const -> const Location&
     return m_location;
 }
 
-auto Source::operator[](const int idx) const -> std::optional<char>
+auto Source::is_at_end() const -> bool
 {
-    const auto cursor = m_cursor + static_cast<std::size_t>(idx);
-    return (cursor < m_text.size())
-         ? std::make_optional(m_text[cursor])
+    return m_cursor >= m_text.size();
+}
+
+auto Source::peek() const -> std::optional<char>
+{
+    return (!is_at_end())
+         ? std::make_optional(m_text[m_cursor])
          : std::nullopt;
 }
 
-auto Source::operator[](const char chr) const -> std::optional<char>
+auto Source::peek(const char chr) const -> std::optional<char>
 {
-    const auto current = (*this)[0];
+    const auto current = peek();
     return (current == chr)
          ? current
          : std::nullopt;
 }
 
-auto Source::operator[](const std::string_view str) const -> std::optional<std::string_view>
+auto Source::peek(const std::string_view str) const -> std::optional<std::string_view>
 {
+    if (is_at_end())
+        return std::nullopt;
+
     const auto current = std::string_view(m_text).substr(m_cursor, str.size());
     return (current == str)
          ? std::make_optional(current)
@@ -43,7 +50,7 @@ auto Source::operator[](const std::string_view str) const -> std::optional<std::
 auto Source::operator++() -> std::optional<char>
 {
     utility::ignore(consume());
-    return (*this)[0];
+    return peek();
 }
 
 auto Source::operator++(int) -> std::optional<char>
@@ -53,7 +60,7 @@ auto Source::operator++(int) -> std::optional<char>
 
 auto Source::consume() -> std::optional<char>
 {
-    const auto current = (*this)[0];
+    const auto current = peek();
     if (current == '\n')
     {
         m_location.line++;
@@ -71,14 +78,14 @@ auto Source::consume() -> std::optional<char>
 
 auto Source::consume(const char chr) -> std::optional<char>
 {
-    return ((*this)[chr])
+    return peek(chr)
          ? consume()
          : std::nullopt;
 }
 
 auto Source::consume(const std::string_view str) -> std::optional<std::string_view>
 {
-    const auto current = (*this)[str];
+    const auto current = peek(str);
     const auto chars   = (current) ? *current : std::string_view("");
 
     for (const auto& _ [[maybe_unused]]: chars)

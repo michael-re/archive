@@ -22,10 +22,10 @@ auto Lexer::lex() -> Token
 
 auto Lexer::lex_whitespace() -> std::optional<char>
 {
-    while (m_source[0])
+    while (!m_source.is_at_end())
     {
         // whitespace - any non printable ascii characters + space (' ')
-        if (m_source[0] <= 0x20)
+        if (m_source.peek() <= 0x20)
         {
             utility::ignore(m_source++);
             continue;
@@ -34,7 +34,7 @@ auto Lexer::lex_whitespace() -> std::optional<char>
         // single-line comments
         if (m_source.consume("//"))
         {
-            while (m_source[0] && !m_source.consume('\n'))
+            while (!m_source.is_at_end() && !m_source.consume('\n'))
                 utility::ignore(m_source++);
             continue;
         }
@@ -42,7 +42,7 @@ auto Lexer::lex_whitespace() -> std::optional<char>
         // multi-line comments
         if (m_source.consume("/*"))
         {
-            while (m_source[0] && !m_source.consume("*/"))
+            while (!m_source.is_at_end() && !m_source.consume("*/"))
                 utility::ignore(m_source++);
         }
 
@@ -50,5 +50,5 @@ auto Lexer::lex_whitespace() -> std::optional<char>
         break;
     }
 
-    return m_source[0];
+    return m_source.peek();
 }

@@ -17,10 +17,12 @@ namespace archive::frontend
     public:
         explicit Source(std::string text = "");
 
-        [[nodiscard]] auto location()                             const -> const Location&;
-        [[nodiscard]] auto operator[](const int              idx) const -> std::optional<char>;
-        [[nodiscard]] auto operator[](const char             chr) const -> std::optional<char>;
-        [[nodiscard]] auto operator[](const std::string_view str) const -> std::optional<std::string_view>;
+        [[nodiscard]] auto location()  const -> const Location&;
+        [[nodiscard]] auto is_at_end() const -> bool;
+
+        [[nodiscard]] auto peek()                           const -> std::optional<char>;
+        [[nodiscard]] auto peek(const char             chr) const -> std::optional<char>;
+        [[nodiscard]] auto peek(const std::string_view str) const -> std::optional<std::string_view>;
 
         [[nodiscard]] auto operator++()    -> std::optional<char>;
         [[nodiscard]] auto operator++(int) -> std::optional<char>;
