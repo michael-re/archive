@@ -45,7 +45,7 @@ Fatal::Fatal(const std::string_view     message,
 auto Fatal::terminate() const -> void
 {
     std::cerr << "\n==== archive fatal termination ====\n"
-                << message()
-                << "\n==== archive fatal termination ====\n\n";
+              << message()
+              << "\n==== archive fatal termination ====\n\n";
     std::exit(archive::exit_code::failure);
 }
