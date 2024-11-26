@@ -22,33 +22,43 @@ auto Lexer::lex() -> Token
 
 auto Lexer::lex_whitespace() -> std::optional<char>
 {
-    while (!m_source.is_at_end())
+    while (lex_nonprintable() || lex_comments())
     {
-        // whitespace - any non printable ascii characters + space (' ')
-        if (m_source.peek() <= 0x20)
-        {
-            utility::ignore(m_source++);
-            continue;
-        }
-
-        // single-line comments
-        if (m_source.consume("//"))
-        {
-            while (!m_source.is_at_end() && !m_source.consume('\n'))
-                utility::ignore(m_source++);
-            continue;
-        }
-
-        // multi-line comments
-        if (m_source.consume("/*"))
-        {
-            while (!m_source.is_at_end() && !m_source.consume("*/"))
-                utility::ignore(m_source++);
-        }
-
-        // non whitespace character
-        break;
+        // skip non printable characters and comments
     }
 
     return m_source.peek();
+}
+
+auto Lexer::lex_nonprintable() -> bool
+{
+    // whitespace - any non printable ascii characters + space (' ')
+    if (!m_source.is_at_end() && m_source.peek() <= 0x20)
+    {
+        utility::ignore(m_source++);
+        return true;
+    }
+
+    return false;
+}
+
+auto Lexer::lex_comments() -> bool
+{
+    // single-line comments
+    if (!m_source.is_at_end() && m_source.consume("//"))
+    {
+        while (!m_source.is_at_end() && !m_source.consume('\n'))
+            utility::ignore(m_source++);
+        return true;
+    }
+
+    // multi-line comments
+    if (!m_source.is_at_end() && m_source.consume("/*"))
+    {
+        while (!m_source.is_at_end() && !m_source.consume("*/"))
+            utility::ignore(m_source++);
+        return true;
+    }
+
+    return false;
 }
